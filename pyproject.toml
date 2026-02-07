@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sumo-mcp-server"
+version = "1.0.0"
+description = "MCP server for controlling Parrot Jumping Sumo robot"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "mcp>=1.0.0",
+    "opencv-python>=4.5.0",
+    "numpy>=1.19.0",
+]
+
+[project.scripts]
+sumo-mcp-server = "server:main"

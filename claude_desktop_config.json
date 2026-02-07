@@ -1,0 +1,14 @@
+{
+    "mcpServers": {
+        "sumo-robot": {
+            "command": "python",
+            "args": [
+                "c:\\Users\\zer0z\\.gemini\\antigravity\\playground\\orbital-singularity\\sumo-mcp-server\\server.py"
+            ],
+            "env": {
+                "APPDATA_DIR": "C:\\Users\\zer0z\\.gemini\\antigravity",
+                "CONVERSATION_ID": "current"
+            }
+        }
+    }
+}
