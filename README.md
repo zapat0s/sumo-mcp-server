@@ -291,6 +291,22 @@ You: "Move forward, do a spin, then jump high"
 AI: *drives forward, spins 360 degrees, performs high jump*
 ```
 
+## 🌐 Network Deployment (Raspberry Pi)
+
+You can deploy this server on a Raspberry Pi and control the robot remotely over your network!
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for a complete setup guide.
+
+Key features of network mode:
+- **SSE Transport**: Uses Server-Sent Events standard for MCP
+- **Remote Access**: Drive the robot from any computer on your network
+- **Dual Connection**: Pi connects to Robot (WiFi) + Your Network (Ethernet)
+
+Basic command:
+```bash
+python server.py --transport sse --host 0.0.0.0
+```
+
 ## ⚠️ Safety Guidelines
 
 1. **Clear Space**: Ensure the robot has adequate space to move (at least 2m x 2m)

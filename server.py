@@ -462,15 +462,63 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent | ImageConte
         ]
 
 
+async def run_sse_server(host: str = "0.0.0.0", port: int = 8000):
+    """Run the MCP server using SSE transport (Starlette/Uvicorn)."""
+    import uvicorn
+    from starlette.applications import Starlette
+    from starlette.responses import JSONResponse
+    from starlette.routing import Route, Mount
+    from sse_starlette.sse import EventSourceResponse
+    from mcp.server.sse import SseServerTransport
+    
+    # Create SSE transport
+    sse = SseServerTransport("/messages")
+    
+    async def handle_sse(request):
+        async with sse.connect_sse(request.scope, request.receive, request._send) as streams:
+            await app.run(streams[0], streams[1], app.create_initialization_options())
+            
+    async def handle_messages(request):
+        await sse.handle_post_message(request.scope, request.receive, request._send)
+        
+    starlette_app = Starlette(
+        debug=True,
+        routes=[
+            Route("/sse", endpoint=handle_sse),
+            Route("/messages", endpoint=handle_messages, methods=["POST"]),
+        ],
+    )
+    
+    print(f"🚀 Starting Jumping Sumo MCP Server (SSE)")
+    print(f"📡 Listening on http://{host}:{port}")
+    print(f"🔗 SSE Endpoint: http://{host}:{port}/sse")
+    
+    config = uvicorn.Config(starlette_app, host=host, port=port, log_level="info")
+    server = uvicorn.Server(config)
+    await server.serve()
+
 async def main():
     """Run the MCP server."""
-    # Use stdio transport for MCP communication
-    async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
-        await app.run(
-            read_stream,
-            write_stream,
-            app.create_initialization_options()
-        )
+    import sys
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Parrot Jumping Sumo MCP Server")
+    parser.add_argument("--transport", choices=["stdio", "sse"], default="stdio", help="Transport protocol to use")
+    parser.add_argument("--host", default="0.0.0.0", help="Host for SSE server")
+    parser.add_argument("--port", type=int, default=8000, help="Port for SSE server")
+    
+    args = parser.parse_args()
+    
+    if args.transport == "sse":
+        await run_sse_server(args.host, args.port)
+    else:
+        # Use stdio transport for MCP communication (default)
+        async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
+            await app.run(
+                read_stream,
+                write_stream,
+                app.create_initialization_options()
+            )
 
 
 if __name__ == "__main__":
