@@ -1,27 +1,35 @@
 # Testing Scripts for Jumping Sumo MCP Server
 
-This directory contains several test scripts that allow you to test the MCP server directly without needing Claude Desktop.
+This directory contains several test scripts in the `tests/` folder that allow you to test the MCP server directly without needing Claude Desktop. Tests connect to the server via SSE (HTTP).
 
 ## Prerequisites
 
-Make sure you have the MCP Python client library installed:
+1. Install dependencies:
+   ```powershell
+   pip install mcp
+   ```
 
-```powershell
-pip install mcp
-```
+2. **Start the server in SSE mode** (required before running any test):
+   ```powershell
+   cd c:\Users\zer0z\Projects\JumpingSumoMCPServer\sumo-mcp-server
+   python server.py --transport sse
+   ```
+   The server will listen on `http://localhost:8000`.
 
 ## Test Scripts
 
-### 1. `list_tools.py` - Tool Discovery
+All test scripts are in the `tests/` directory and should be run from the `sumo-mcp-server` directory.
+
+### 1. `tests/list_tools.py` - Tool Discovery
 Lists all available MCP tools and their parameters.
 
 ```powershell
-python list_tools.py
+python tests/list_tools.py
 ```
 
 **Use this first** to see what tools are available.
 
-### 2. `test_mcp_client.py` - Full Integration Test
+### 2. `tests/test_mcp_client.py` - Full Integration Test
 Interactive test client that walks through:
 - Connecting to robot
 - Moving the robot
@@ -30,23 +38,23 @@ Interactive test client that walks through:
 - Optional jump test
 
 ```powershell
-python test_mcp_client.py
+python tests/test_mcp_client.py
 ```
 
 **Best for initial testing** - covers all basic functionality with prompts.
 
-### 3. `test_animations.py` - Animation Suite
+### 3. `tests/test_animations.py` - Animation Suite
 Tests all 10 built-in animations sequentially.
 
 ```powershell
-python test_animations.py
+python tests/test_animations.py
 ```
 
 Animations tested:
 - spin, tap, slowshake, metronome, ondulation
 - spinjump, spintoposture, spiral, slalom
 
-### 4. `test_jump_kick.py` - Jump & Kick Testing
+### 4. `tests/test_jump_kick.py` - Jump & Kick Testing
 Comprehensive jumping and kicking test including:
 - Simple high/long jumps
 - Manual jump loading
@@ -54,29 +62,42 @@ Comprehensive jumping and kicking test including:
 - Kicking sequence
 
 ```powershell
-python test_jump_kick.py
+python tests/test_jump_kick.py
 ```
 
 **Use with caution** - ensure adequate clearance around robot!
 
+## Custom Server URL
+
+All test scripts accept a `--url` argument to connect to a different server:
+
+```powershell
+python tests/list_tools.py --url http://192.168.1.100:8000/sse
+```
+
 ## Usage Tips
 
-1. **Always connect to robot WiFi first**
+1. **Start the server first** in a separate terminal:
+   ```powershell
+   python server.py --transport sse
+   ```
+
+2. **Connect to robot WiFi**
    - Robot network: JumpingSumo-XXXXXX
    - Verify: `ping 192.168.2.1`
 
-2. **Run from the sumo-mcp-server directory**
+3. **Run from the sumo-mcp-server directory**
    ```powershell
    cd c:\Users\zer0z\Projects\JumpingSumoMCPServer\sumo-mcp-server
-   python test_mcp_client.py
+   python tests/test_mcp_client.py
    ```
 
-3. **Start simple**
-   - First run: `list_tools.py`
-   - Second run: `test_mcp_client.py`
+4. **Start simple**
+   - First run: `tests/list_tools.py`
+   - Second run: `tests/test_mcp_client.py`
    - Then try specialized tests
 
-4. **Interrupting tests**
+5. **Interrupting tests**
    - Press `Ctrl+C` to interrupt any test
    - Robot will remain connected - use `disconnect_robot` call if needed
 
@@ -86,17 +107,11 @@ You can create your own test scripts using this template:
 
 ```python
 import asyncio
-from mcp import ClientSession, StdioServerParameters
-from mcp.client.stdio import stdio_client
+from mcp import ClientSession
+from mcp.client.sse import sse_client
 
 async def my_test():
-    server_params = StdioServerParameters(
-        command="python",
-        args=["server.py"],
-        env=None
-    )
-    
-    async with stdio_client(server_params) as (read, write):
+    async with sse_client("http://localhost:8000/sse") as (read, write):
         async with ClientSession(read, write) as session:
             await session.initialize()
             
@@ -113,14 +128,14 @@ if __name__ == "__main__":
 **"ModuleNotFoundError: No module named 'mcp'"**
 - Install: `pip install mcp`
 
+**"Connection refused" or "Cannot connect"**
+- Make sure the server is running: `python server.py --transport sse`
+- Verify the server URL matches (default: `http://localhost:8000/sse`)
+
 **"Robot not connected" errors**
 - Ensure you're connected to robot WiFi
 - Check robot is powered on
 - Verify network: `ping 192.168.2.1`
-
-**"Server not responding"**
-- Make sure `server.py` is in the same directory
-- Check Python path in server_params if needed
 
 ## Safety Reminders
 

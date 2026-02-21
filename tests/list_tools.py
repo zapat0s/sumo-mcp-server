@@ -3,28 +3,31 @@
 Simple tool listing script.
 
 Lists all available MCP tools and their descriptions.
+Connects to the MCP server via SSE (HTTP).
+
+Prerequisites:
+  1. Start the server first: python server.py --transport sse
+  2. Then run this script: python tests/list_tools.py
 """
 import asyncio
 import sys
-from mcp import ClientSession, StdioServerParameters
-from mcp.client.stdio import stdio_client
+import argparse
+from mcp import ClientSession
+from mcp.client.sse import sse_client
+
+DEFAULT_URL = "http://localhost:8000/sse"
 
 
-async def list_all_tools():
+async def list_all_tools(server_url: str):
     """List all available tools."""
-    server_params = StdioServerParameters(
-        command="python",
-        args=["server.py"],
-        env=None
-    )
-    
-    async with stdio_client(server_params) as (read, write):
+    async with sse_client(server_url) as (read, write):
         async with ClientSession(read, write) as session:
             await session.initialize()
             
             tools = await session.list_tools()
             
             print("🔧 Jumping Sumo MCP Server - Available Tools")
+            print(f"📡 Connected to: {server_url}")
             print("=" * 70)
             print(f"\nTotal tools: {len(tools.tools)}\n")
             
@@ -54,8 +57,12 @@ async def list_all_tools():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="List Jumping Sumo MCP Server Tools")
+    parser.add_argument("--url", default=DEFAULT_URL, help=f"SSE server URL (default: {DEFAULT_URL})")
+    args = parser.parse_args()
+
     try:
-        asyncio.run(list_all_tools())
+        asyncio.run(list_all_tools(args.url))
     except Exception as e:
         print(f"❌ Error: {e}")
         import traceback

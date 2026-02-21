@@ -3,15 +3,22 @@
 Quick animation test script for Jumping Sumo.
 
 Tests all the robot's built-in animations.
-Run this after connecting to the robot.
+Connects to the MCP server via SSE (HTTP).
+
+Prerequisites:
+  1. Start the server first: python server.py --transport sse
+  2. Then run this script: python tests/test_animations.py
 """
 import asyncio
 import sys
-from mcp import ClientSession, StdioServerParameters
-from mcp.client.stdio import stdio_client
+import argparse
+from mcp import ClientSession
+from mcp.client.sse import sse_client
+
+DEFAULT_URL = "http://localhost:8000/sse"
 
 
-async def test_animations():
+async def test_animations(server_url: str):
     """Test all animations sequentially."""
     animations = [
         "spin",
@@ -25,17 +32,12 @@ async def test_animations():
         "slalom"
     ]
     
-    server_params = StdioServerParameters(
-        command="python",
-        args=["server.py"],
-        env=None
-    )
-    
-    async with stdio_client(server_params) as (read, write):
+    async with sse_client(server_url) as (read, write):
         async with ClientSession(read, write) as session:
             await session.initialize()
             
             print("🎭 Animation Test Suite")
+            print(f"📡 Connected to: {server_url}")
             print("=" * 50)
             
             # Connect to robot
@@ -71,8 +73,12 @@ async def test_animations():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Jumping Sumo Animation Test")
+    parser.add_argument("--url", default=DEFAULT_URL, help=f"SSE server URL (default: {DEFAULT_URL})")
+    args = parser.parse_args()
+
     try:
-        asyncio.run(test_animations())
+        asyncio.run(test_animations(args.url))
     except KeyboardInterrupt:
         print("\n\n⚠️  Test interrupted")
         sys.exit(0)

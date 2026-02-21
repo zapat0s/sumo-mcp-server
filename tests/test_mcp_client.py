@@ -3,15 +3,22 @@
 Basic MCP test client for Jumping Sumo robot.
 
 This script allows you to test the MCP server without Claude Desktop.
-It connects to the MCP server and sends tool calls directly.
+It connects to the MCP server via SSE (HTTP) and sends tool calls directly.
+
+Prerequisites:
+  1. Start the server first: python server.py --transport sse
+  2. Then run this script: python tests/test_mcp_client.py
 """
 import asyncio
 import json
 import sys
+import argparse
 from typing import Any, Dict
 
-from mcp import ClientSession, StdioServerParameters
-from mcp.client.stdio import stdio_client
+from mcp import ClientSession
+from mcp.client.sse import sse_client
+
+DEFAULT_URL = "http://localhost:8000/sse"
 
 
 async def call_tool(session: ClientSession, tool_name: str, arguments: Dict[str, Any] = None):
@@ -47,17 +54,15 @@ async def list_tools(session: ClientSession):
 
 async def main():
     """Main test function."""
+    parser = argparse.ArgumentParser(description="Jumping Sumo MCP Test Client")
+    parser.add_argument("--url", default=DEFAULT_URL, help=f"SSE server URL (default: {DEFAULT_URL})")
+    args = parser.parse_args()
+
     print("🤖 Jumping Sumo MCP Test Client")
+    print(f"📡 Connecting to: {args.url}")
     print("=" * 50)
     
-    # Server parameters - adjust path if needed
-    server_params = StdioServerParameters(
-        command="python",
-        args=["server.py"],
-        env=None
-    )
-    
-    async with stdio_client(server_params) as (read, write):
+    async with sse_client(args.url) as (read, write):
         async with ClientSession(read, write) as session:
             # Initialize the session
             await session.initialize()
