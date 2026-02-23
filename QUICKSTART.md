@@ -5,7 +5,6 @@ Follow these steps to get your robot control MCP server running:
 ## 1. Install Dependencies
 
 ```powershell
-cd c:\Users\zer0z\.gemini\antigravity\playground\orbital-singularity\sumo-mcp-server
 pip install -r requirements.txt
 ```
 
@@ -17,15 +16,13 @@ pip install -r requirements.txt
 
 ## 3. Configure Claude Desktop
 
-Edit `%APPDATA%\Claude\claude_desktop_config.json` and add:
-
 ```json
 {
   "mcpServers": {
     "sumo-robot": {
       "command": "python",
       "args": [
-        "c:\\Users\\zer0z\\.gemini\\antigravity\\playground\\orbital-singularity\\sumo-mcp-server\\server.py"
+        "~/sumo-mcp-server/server.py"
       ]
     }
   }
@@ -46,7 +43,7 @@ In Claude, try:
 - "Do a high jump"
 - "Change to kicker posture"
 
-**13 tools now available**:
+**12 tools now available**:
 - Connection (connect, disconnect, status)
 - Movement (move_robot)
 - Jumping (jump_robot, load_jump, cancel_jump, stop_jump)

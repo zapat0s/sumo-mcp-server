@@ -88,7 +88,6 @@ python tests/list_tools.py --url http://192.168.1.100:8000/sse
 
 3. **Run from the sumo-mcp-server directory**
    ```powershell
-   cd c:\Users\zer0z\Projects\JumpingSumoMCPServer\sumo-mcp-server
    python tests/test_mcp_client.py
    ```
 

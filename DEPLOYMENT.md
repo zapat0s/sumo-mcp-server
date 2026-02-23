@@ -96,9 +96,9 @@ python server.py --transport sse --host 0.0.0.0 --port 8000
 
 You should see:
 ```
-🚀 Starting Jumping Sumo MCP Server (SSE)
-📡 Listening on http://0.0.0.0:8000
-🔗 SSE Endpoint: http://0.0.0.0:8000/sse
+Starting Jumping Sumo MCP Server (SSE)
+Listening on http://0.0.0.0:8000
+SSE Endpoint: http://0.0.0.0:8000/sse
 ```
 
 ## Step 7: Connect from Claude Desktop

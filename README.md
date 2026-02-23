@@ -33,8 +33,6 @@ The MCP server needs both this repository and the python-sumo library:
 
 ```powershell
 # Navigate to your working directory
-cd c:\Users\zer0z\.gemini\antigravity\playground\orbital-singularity
-
 # The python-sumo repository should already be cloned
 # If not, clone it:
 git clone https://github.com/faturita/python-sumo.git
@@ -78,7 +76,6 @@ There are two ways to run the server:
 
 #### Option 1: Direct Execution
 ```powershell
-cd c:\Users\zer0z\.gemini\antigravity\playground\orbital-singularity\sumo-mcp-server
 python server.py
 ```
 
@@ -93,10 +90,6 @@ The server will start and wait for MCP client connections via stdio.
 
 To use this server with Claude Desktop or another MCP client, add it to your MCP configuration file.
 
-**For Claude Desktop on Windows:**
-
-Edit: `%APPDATA%\Claude\claude_desktop_config.json`
-
 Add this configuration:
 
 ```json
@@ -105,7 +98,7 @@ Add this configuration:
     "sumo-robot": {
       "command": "python",
       "args": [
-        "c:\\Users\\zer0z\\.gemini\\antigravity\\playground\\orbital-singularity\\sumo-mcp-server\\server.py"
+        "~/sumo-mcp-server/server.py"
       ]
     }
   }
@@ -116,7 +109,7 @@ Restart Claude Desktop after making changes.
 
 ### Available Tools
 
-Once connected, the following **13 tools** will be available to your AI assistant:
+Once connected, the following **12 tools** will be available to your AI assistant:
 
 #### Connection & Status
 
@@ -395,7 +388,7 @@ python server.py
 
 ### Modifying the Server
 
-- **Add new tools**: Edit `TOOLS` list and `call_tool()` function in `server.py`
+- **Add new tools**: Add a new `@app.tool(...)` function in `server.py`
 - **Change robot behavior**: Modify `sumopy_wrapper.py`
 - **Adjust connection settings**: Edit default parameters in `SumoWrapper.__init__()`
 
